@@ -1,0 +1,19 @@
+.container {
+  width: 100%;
+  height: 100px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 50px;
+}
+
+.eye_icon {
+  cursor: pointer;
+  width: 50px;
+}
+
+.close_icon {
+  cursor: pointer;
+  width: 40px;
+}
