@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import styles from "./Dropdown.module.scss";
-import top_arrow from "../../assets/dropdown_top.png";
-import down_arrow from "../../assets/dropdown_down.png";
-import option_icon_1 from "../../assets/dropdown1.png";
-import option_icon_2 from "../../assets/dropdown2.png";
-import option_icon_3 from "../../assets/dropdown3.png";
-import option_icon_4 from "../../assets/dropdown4.png";
-import option_icon_5 from "../../assets/dropdown5.png";
+import { useDispatch } from "react-redux";
+import styles from "./OptionsDropdown.module.scss";
+import top_arrow from "../../../assets/dropdown_top.png";
+import down_arrow from "../../../assets/dropdown_down.png";
+import option_icon_1 from "../../../assets/dropdown1.png";
+import option_icon_2 from "../../../assets/dropdown2.png";
+import option_icon_3 from "../../../assets/dropdown3.png";
+import option_icon_4 from "../../../assets/dropdown4.png";
+import option_icon_5 from "../../../assets/dropdown5.png";
+import { setQuestionType } from "../../../redux/formSlice";
 
 const options = [
   { label: "단답형", icon: option_icon_1 },
@@ -17,12 +19,14 @@ const options = [
 ];
 
 export default function OptionsDropdown() {
-  const [selectedOption, setSelectedOption] = useState("객관식 질문");
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedOption, setSelectedOption] = useState(options[0].label);
 
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
+    dispatch(setQuestionType(option));
     setIsOpen(false);
   };
 
