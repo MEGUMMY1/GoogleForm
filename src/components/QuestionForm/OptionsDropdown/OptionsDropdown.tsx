@@ -23,10 +23,12 @@ export default function OptionsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedOption, setSelectedOption] = useState(options[0].label);
+  const [selectedOptionIcon, setSelectedOptionIcon] = useState(options[0].icon);
 
-  const handleOptionClick = (option: string) => {
-    setSelectedOption(option);
-    dispatch(setQuestionType(option));
+  const handleOptionClick = (optionLabel: string, optionIcon: string) => {
+    setSelectedOption(optionLabel);
+    setSelectedOptionIcon(optionIcon);
+    dispatch(setQuestionType(optionLabel));
     setIsOpen(false);
   };
 
@@ -51,19 +53,26 @@ export default function OptionsDropdown() {
   return (
     <div className={styles.container} ref={dropdownRef}>
       <div className={styles.dropdown} onClick={toggleDropdown}>
-        <span className={styles.selected}>{selectedOption}</span>
+        <div className={styles.option_container}>
+          <img src={selectedOptionIcon} className={styles.option_icon} width={30} height={30} />
+          <span className={styles.selected}>{selectedOption}</span>
+        </div>
         <img
           src={isOpen ? top_arrow : down_arrow}
           className={styles.dropdown_icon}
           width={15}
           height={15}
-          alt=""
+          alt="option icon"
         />
       </div>
       {isOpen && (
         <ul className={styles.options}>
           {options.map(({ label, icon }) => (
-            <li key={label} className={styles.option} onClick={() => handleOptionClick(label)}>
+            <li
+              key={label}
+              className={styles.option}
+              onClick={() => handleOptionClick(label, icon)}
+            >
               <img
                 src={icon}
                 className={styles.option_icon}
