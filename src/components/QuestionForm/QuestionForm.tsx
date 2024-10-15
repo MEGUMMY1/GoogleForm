@@ -6,9 +6,14 @@ import MultipleChoice from "./Questions/MultipleChoice";
 import Checkbox from "./Questions/Checkbox";
 import Dropdown from "./Questions/Dropdown";
 import OptionsDropdown from "./OptionsDropdown/OptionsDropdown";
+import copy_icon from "../../assets/copy.png";
+import delete_icon from "../../assets/delete.png";
+import styles from "./QuestionForm.module.scss";
+import { useState } from "react";
 
 export default function QuestionForm() {
   const questionType = useSelector((state: RootState) => state.form.questionType);
+  const [isRequired, setIsRequired] = useState(false);
 
   const renderQuestionComponent = () => {
     switch (questionType) {
@@ -27,10 +32,34 @@ export default function QuestionForm() {
     }
   };
 
+  const toggleRequired = () => {
+    setIsRequired(!isRequired);
+  };
+
   return (
-    <div>
-      <OptionsDropdown />
+    <div className={styles.container}>
+      <div className={styles.input_dropdown_container}>
+        <input className={styles.input_box} placeholder="질문" />
+        <OptionsDropdown />
+      </div>
       {renderQuestionComponent()}
+      <div className={styles.bar} />
+      <div className={styles.option_container}>
+        <img className={styles.icon} src={copy_icon} width={20} height={20} alt="복사하기" />
+        <img className={styles.icon} src={delete_icon} width={20} height={20} alt="삭제하기" />
+        <div className={styles.toggle_container}>
+          <p className={styles.toggle_text}>필수</p>
+          <label className={styles.toggle_switch}>
+            <input
+              className={styles.toggle_input}
+              type="checkbox"
+              checked={isRequired}
+              onChange={toggleRequired}
+            />
+            <span className={styles.slider}></span>
+          </label>
+        </div>
+      </div>
     </div>
   );
 }
