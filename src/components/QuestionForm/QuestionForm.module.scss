@@ -18,11 +18,12 @@
 
 .input_box {
   width: 100%;
-  height: 56px;
   font-size: 20px;
   outline: none;
   border: none;
   border-bottom: 1px solid #cfcfcf;
+  padding-left: 10px;
+  padding-bottom: 10px;
 
   &:focus {
     border-bottom: 2px solid rgb(103, 58, 183);
