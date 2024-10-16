@@ -26,11 +26,11 @@
 
 .title {
   width: 100%;
-  height: 48px;
   font-size: 32px;
   outline: none;
   border: none;
   border-bottom: 1px solid #cfcfcf;
+  padding-bottom: 10px;
 
   &:focus {
     border-bottom: 2px solid rgb(103, 58, 183);
@@ -39,11 +39,11 @@
 
 .subtitle {
   width: 100%;
-  height: 20px;
   font-size: 14px;
   outline: none;
   border: none;
   border-bottom: 1px solid #cfcfcf;
+  padding-bottom: 10px;
 
   &:focus {
     border-bottom: 2px solid rgb(103, 58, 183);
