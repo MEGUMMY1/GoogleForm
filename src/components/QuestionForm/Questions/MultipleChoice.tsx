@@ -25,6 +25,7 @@ export default function MultipleChoice() {
 
   const handleAddOption = () => {
     if (newOptionText.trim() === "") return;
+
     const newOption = {
       id: (options.length + 1).toString(),
       text: newOptionText,
@@ -40,6 +41,12 @@ export default function MultipleChoice() {
 
   const handleKeyDown = useEnterKey(handleAddOption);
 
+  const handleDeleteKeyDown = (event: React.KeyboardEvent<HTMLImageElement>, id: string) => {
+    if (event.key === "Enter" || "") {
+      handleDeleteOption(id);
+    }
+  };
+
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -54,8 +61,16 @@ export default function MultipleChoice() {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       className={styles.list_item}
+                      tabIndex={-1}
                     >
                       <div className={styles.drag_handle}>::</div>
+                      <input
+                        type="radio"
+                        checked={option.isChecked}
+                        onChange={() => handleOptionChange(option.id, option.text)}
+                        className={styles.checkbox}
+                        tabIndex={-1}
+                      />
                       <input
                         type="text"
                         value={option.text}
@@ -69,7 +84,9 @@ export default function MultipleChoice() {
                           width={40}
                           height={40}
                           onClick={() => handleDeleteOption(option.id)}
-                          alt="닫기"
+                          onKeyDown={(e) => handleDeleteKeyDown(e, option.id)}
+                          alt="삭제"
+                          tabIndex={0}
                         />
                       )}
                     </li>
