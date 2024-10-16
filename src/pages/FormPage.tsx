@@ -18,6 +18,8 @@ export default function FormPage() {
     { id: 0, questionType: "객관식 질문", isRequired: false },
   ]);
 
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
+
   const handleAddQuestion = () => {
     setQuestionForms((prevForms) => [
       ...prevForms,
@@ -28,6 +30,9 @@ export default function FormPage() {
   const handleDeleteQuestion = (id: number) => {
     setQuestionForms((prevForms) => prevForms.filter((form) => form.id !== id));
     toast("항목이 삭제되었습니다.");
+    if (selectedFormId === id) {
+      setSelectedFormId(null);
+    }
   };
 
   const handleCopyQuestion = (id: number) => {
@@ -74,7 +79,6 @@ export default function FormPage() {
               ref={provided.innerRef}
             >
               <Title />
-              <Nav onAddQuestion={handleAddQuestion} />
               {questionForms.map((form, index) => (
                 <Draggable key={form.id} draggableId={form.id.toString()} index={index}>
                   {(provided) => (
@@ -82,7 +86,17 @@ export default function FormPage() {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      className={styles.form_container}
+                      onClick={() => setSelectedFormId(form.id)}
                     >
+                      {selectedFormId === form.id && (
+                        <>
+                          <div className={styles.border} />
+                          <div className={styles.navigation}>
+                            <Nav onAddQuestion={handleAddQuestion} />
+                          </div>
+                        </>
+                      )}
                       <QuestionForm
                         id={form.id}
                         questionType={form.questionType}
