@@ -44,8 +44,14 @@ export default function QuestionForm({ id }: QuestionFormProps) {
       {renderQuestionComponent()}
       <div className={styles.bar} />
       <div className={styles.option_container}>
-        <img className={styles.icon} src={copy_icon} width={20} height={20} alt="복사하기" />
-        <img className={styles.icon} src={delete_icon} width={20} height={20} alt="삭제하기" />
+        <div className={styles.icon_container}>
+          <img className={styles.icon} src={copy_icon} width={20} height={20} alt="복사하기" />
+          <span className={styles.tooltip}>복사</span>
+        </div>
+        <div className={styles.icon_container}>
+          <img className={styles.icon} src={delete_icon} width={20} height={20} alt="삭제하기" />
+          <span className={styles.tooltip}>삭제</span>
+        </div>
         <div className={styles.toggle_container}>
           <p className={styles.toggle_text}>필수</p>
           <label className={styles.toggle_switch}>
