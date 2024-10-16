@@ -5,6 +5,7 @@ import styles from "./Page.module.scss";
 import QuestionForm from "../components/QuestionForm/QuestionForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export interface QuestionFormState {
   id: number;
@@ -52,35 +53,65 @@ export default function FormPage() {
     );
   };
 
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(questionForms);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setQuestionForms(items);
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.components_container}>
-        <Title />
-        <Nav onAddQuestion={handleAddQuestion} />
-        {questionForms.map((form) => (
-          <QuestionForm
-            key={form.id}
-            id={form.id}
-            questionType={form.questionType}
-            isRequired={form.isRequired}
-            onDelete={handleDeleteQuestion}
-            onCopy={handleCopyQuestion}
-            onUpdateFormState={handleUpdateFormState}
-          />
-        ))}
-        <ToastContainer
-          position="bottom-left"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      </div>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="questionForms">
+          {(provided) => (
+            <div
+              className={styles.components_container}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              <Title />
+              <Nav onAddQuestion={handleAddQuestion} />
+              {questionForms.map((form, index) => (
+                <Draggable key={form.id} draggableId={form.id.toString()} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <QuestionForm
+                        id={form.id}
+                        questionType={form.questionType}
+                        isRequired={form.isRequired}
+                        onDelete={handleDeleteQuestion}
+                        onCopy={handleCopyQuestion}
+                        onUpdateFormState={handleUpdateFormState}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              <ToastContainer
+                position="bottom-left"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 }
