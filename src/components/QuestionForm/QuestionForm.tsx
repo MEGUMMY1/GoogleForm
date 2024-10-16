@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ShortAnswer from "./Questions/ShortAnswer";
 import LongAnswer from "./Questions/LongAnswer";
 import MultipleChoice from "./Questions/MultipleChoice";
@@ -10,12 +10,23 @@ import delete_icon from "../../assets/delete.png";
 import styles from "./QuestionForm.module.scss";
 import { QuestionFormProps } from "./QuestionForm.types";
 
-export default function QuestionForm({ id }: QuestionFormProps) {
-  const [questionType, setQuestionType] = useState("객관식 질문");
-  const [isRequired, setIsRequired] = useState(false);
+export default function QuestionForm({
+  id,
+  questionType,
+  isRequired,
+  onDelete,
+  onCopy,
+  onUpdateFormState,
+}: QuestionFormProps) {
+  const [localQuestionType, setLocalQuestionType] = useState(questionType);
+  const [localIsRequired, setLocalIsRequired] = useState(isRequired);
+
+  useEffect(() => {
+    onUpdateFormState(id, { questionType: localQuestionType, isRequired: localIsRequired });
+  }, [localQuestionType, localIsRequired]);
 
   const renderQuestionComponent = () => {
-    switch (questionType) {
+    switch (localQuestionType) {
       case "단답형":
         return <ShortAnswer />;
       case "장문형":
@@ -31,24 +42,20 @@ export default function QuestionForm({ id }: QuestionFormProps) {
     }
   };
 
-  const toggleRequired = () => {
-    setIsRequired(!isRequired);
-  };
-
   return (
     <div className={styles.container}>
       <div className={styles.input_dropdown_container}>
         <input className={styles.input_box} placeholder="질문" />
-        <OptionsDropdown questionType={questionType} setQuestionType={setQuestionType} />
+        <OptionsDropdown questionType={localQuestionType} setQuestionType={setLocalQuestionType} />
       </div>
       {renderQuestionComponent()}
       <div className={styles.bar} />
       <div className={styles.option_container}>
-        <div className={styles.icon_container}>
+        <div className={styles.icon_container} onClick={() => onCopy(id)}>
           <img className={styles.icon} src={copy_icon} width={20} height={20} alt="복사하기" />
           <span className={styles.tooltip}>복사</span>
         </div>
-        <div className={styles.icon_container}>
+        <div className={styles.icon_container} onClick={() => onDelete(id)}>
           <img className={styles.icon} src={delete_icon} width={20} height={20} alt="삭제하기" />
           <span className={styles.tooltip}>삭제</span>
         </div>
@@ -58,8 +65,8 @@ export default function QuestionForm({ id }: QuestionFormProps) {
             <input
               className={styles.toggle_input}
               type="checkbox"
-              checked={isRequired}
-              onChange={toggleRequired}
+              checked={localIsRequired}
+              onChange={() => setLocalIsRequired(!localIsRequired)}
             />
             <span className={styles.slider}></span>
           </label>
