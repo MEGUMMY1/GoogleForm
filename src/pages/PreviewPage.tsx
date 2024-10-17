@@ -10,6 +10,8 @@ export default function PreviewPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: string | string[] }>({});
+  const [formErrors, setFormErrors] = useState<{ [key: number]: boolean }>({});
+  const [errorMessages, setErrorMessages] = useState<{ [key: number]: string }>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleOptionClick = (option: string) => {
@@ -22,11 +24,25 @@ export default function PreviewPage() {
       ...prevAnswers,
       [formId]: value,
     }));
+    setFormErrors((prevErrors) => ({ ...prevErrors, [formId]: false }));
+    setErrorMessages((prevMessages) => ({ ...prevMessages, [formId]: "" }));
+  };
+
+  const handleBlur = (formId: number) => {
+    if (questionForms[formId].isRequired && !answers[formId]) {
+      setFormErrors((prevErrors) => ({ ...prevErrors, [formId]: true }));
+      setErrorMessages((prevMessages) => ({
+        ...prevMessages,
+        [formId]: "필수 질문입니다.",
+      }));
+    }
   };
 
   const handleClear = () => {
     setAnswers({});
     setSelectedOption(null);
+    setFormErrors({});
+    setErrorMessages({});
 
     questionForms.forEach((form) => {
       switch (form.questionType) {
@@ -73,7 +89,7 @@ export default function PreviewPage() {
         </div>
         {questionForms.map((form) => (
           <div key={form.id} className={styles.form_container}>
-            <div className={styles.form_wrapper}>
+            <div className={`${styles.form_wrapper} ${formErrors[form.id] ? styles.error : ""}`}>
               <div className={styles.form_header}>
                 <h2>{form.questionText}</h2>
                 {form.isRequired && <span className={styles.required}>*</span>}
@@ -88,6 +104,8 @@ export default function PreviewPage() {
                         placeholder="내 답변"
                         value={answers[form.id] || ""}
                         onChange={(e) => handleInputChange(form.id, e.target.value)}
+                        onBlur={() => handleBlur(form.id)}
+                        onFocus={() => setFormErrors((prev) => ({ ...prev, [form.id]: false }))}
                       />
                     );
                   case "장문형":
@@ -98,11 +116,13 @@ export default function PreviewPage() {
                         rows={1}
                         value={answers[form.id] || ""}
                         onChange={(e) => handleInputChange(form.id, e.target.value)}
+                        onBlur={() => handleBlur(form.id)}
                         onInput={(e) => {
                           const target = e.target as HTMLTextAreaElement;
                           target.style.height = "auto";
                           target.style.height = `${target.scrollHeight}px`;
                         }}
+                        onFocus={() => setFormErrors((prev) => ({ ...prev, [form.id]: false }))}
                       />
                     );
                   case "객관식 질문":
@@ -183,10 +203,18 @@ export default function PreviewPage() {
                     return null;
                 }
               })()}
+              {formErrors[form.id] && (
+                <p className={styles.error_message}>{errorMessages[form.id]}</p>
+              )}
             </div>
           </div>
         ))}
-        <button onClick={handleClear}>양식지우기</button>
+        <div className={styles.button_wrapper}>
+          <button className={styles.submit_button}>제출</button>
+          <button onClick={handleClear} className={styles.clear_button}>
+            양식 지우기
+          </button>
+        </div>
       </div>
     </div>
   );

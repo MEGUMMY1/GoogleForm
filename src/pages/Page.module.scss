@@ -89,6 +89,16 @@
   margin: 10px 0;
   padding: 20px;
 
+  &.error {
+    border: 1px solid rgb(217, 48, 37);
+  }
+
+  .error_message {
+    margin-top: 15px;
+    color: rgb(217, 48, 37);
+    font-size: 12px;
+  }
+
   .form_header {
     display: flex;
     min-height: 40px;
@@ -175,5 +185,30 @@
     .dropdown_option:hover {
       background-color: #f0f0f0;
     }
+  }
+}
+
+.button_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .submit_button {
+    width: 70px;
+    padding: 10px 0;
+    background-color: rgb(103, 58, 183);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .clear_button {
+    color: rgb(103, 58, 183);
+    background: none;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
   }
 }
