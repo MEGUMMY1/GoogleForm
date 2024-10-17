@@ -15,6 +15,8 @@ interface CheckBoxProps {
 export default function CheckBox({ options, id, isPreview = false }: CheckBoxProps) {
   const dispatch = useDispatch();
   const [newOptionText, setNewOptionText] = useState("");
+  const [isDuplicate, setIsDuplicate] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -34,6 +36,16 @@ export default function CheckBox({ options, id, isPreview = false }: CheckBoxPro
 
   const handleAddOption = () => {
     if (newOptionText.trim() === "") return;
+
+    const isDuplicate = options.some((option) => option.text === newOptionText);
+    if (isDuplicate) {
+      setIsDuplicate(true); // 중복이면 상태를 true로 설정
+      setErrorMessage("이미 존재하는 옵션값입니다"); // 오류 메시지 설정
+      return;
+    } else {
+      setIsDuplicate(false); // 중복이 아니면 상태를 false로 설정
+      setErrorMessage(""); // 오류 메시지 초기화
+    }
 
     const newOption: QuestionOption = {
       id: options.length > 0 ? options[options.length - 1].id + 1 : 1,
@@ -121,8 +133,9 @@ export default function CheckBox({ options, id, isPreview = false }: CheckBoxPro
             onChange={(e) => setNewOptionText(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="옵션 추가"
-            className={styles.new_option_input}
+            className={`${styles.new_option_input} ${isDuplicate ? styles.error : ""}`}
           />
+          {isDuplicate && <div className={styles.error_message}>{errorMessage}</div>}
         </div>
       )}
     </>

@@ -92,7 +92,8 @@
 
 .add_option_wrapper {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   margin-top: 10px;
 }
 
@@ -110,4 +111,15 @@
   &:focus {
     border-bottom: 2px solid rgb(103, 58, 183);
   }
+
+  &.error {
+    border-bottom: 2px solid rgb(217, 48, 37);
+  }
+}
+
+.error_message {
+  margin-left: 30px;
+  margin-top: 5px;
+  font-size: 14px;
+  color: rgb(217, 48, 37);
 }
