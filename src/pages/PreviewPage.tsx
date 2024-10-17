@@ -10,18 +10,21 @@ import Modal from "../components/Modal/Modal";
 export default function PreviewPage() {
   const dispatch = useDispatch();
   const { title, subtitle, questionForms } = useSelector((state: RootState) => state.form);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<{ [key: number]: boolean }>({});
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: string | string[] }>({});
   const [formErrors, setFormErrors] = useState<{ [key: number]: boolean }>({});
   const [errorMessages, setErrorMessages] = useState<{ [key: number]: string }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
   const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  const handleOptionClick = (option: string) => {
-    setSelectedOption(option);
-    setIsOpen(false);
+  const handleOptionClick = (formId: number, option: string) => {
+    setAnswers((prevAnswers) => ({
+      ...prevAnswers,
+      [formId]: option,
+    }));
+    setIsOpen((prev) => ({ ...prev, [formId]: false }));
   };
 
   const handleInputChange = (formId: number, value: string | string[]) => {
@@ -68,6 +71,7 @@ export default function PreviewPage() {
     setSelectedOption(null);
     setFormErrors({});
     setErrorMessages({});
+    setIsOpen({});
 
     questionForms.forEach((form) => {
       switch (form.questionType) {
@@ -93,9 +97,12 @@ export default function PreviewPage() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      Object.keys(dropdownRefs.current).forEach((key) => {
+        const dropdown = dropdownRefs.current[Number(key)];
+        if (dropdown && !dropdown.contains(event.target as Node)) {
+          setIsOpen((prev) => ({ ...prev, [Number(key)]: false }));
+        }
+      });
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -104,24 +111,6 @@ export default function PreviewPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, formId: number) => {
-    if (event.key === "Enter") {
-      if (isOpen) {
-        const selectedElement = optionRefs.current[0];
-        if (selectedElement) {
-          const selectedText = selectedElement.textContent;
-          if (selectedText) {
-            handleOptionClick(selectedText);
-            handleInputChange(formId, selectedText);
-          }
-        }
-        setIsOpen(false);
-      } else {
-        setIsOpen(true);
-      }
-    }
-  };
 
   return (
     <div className={styles.container}>
@@ -219,30 +208,36 @@ export default function PreviewPage() {
                     return (
                       <div
                         className={styles.dropdown}
-                        ref={dropdownRef}
+                        ref={(el) => (dropdownRefs.current[form.id] = el)}
                         tabIndex={0}
-                        onKeyDown={(event) => handleKeyDown(event, form.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            setIsOpen((prev) => ({ ...prev, [form.id]: !prev[form.id] }));
+                          }
+                        }}
                       >
-                        <div className={styles.dropdown_input} onClick={() => setIsOpen(!isOpen)}>
-                          <span>{selectedOption || "선택"}</span>
+                        <div
+                          className={styles.dropdown_input}
+                          onClick={() =>
+                            setIsOpen((prev) => ({ ...prev, [form.id]: !prev[form.id] }))
+                          }
+                        >
+                          <span>{answers[form.id] || "선택"}</span>
                           <img
-                            src={isOpen ? top_arrow : down_arrow}
+                            src={isOpen[form.id] ? top_arrow : down_arrow}
                             className={styles.dropdown_icon}
                             width={15}
                             height={15}
                             alt="arrow icon"
                           />
                         </div>
-                        {isOpen && (
+                        {isOpen[form.id] && (
                           <ul className={styles.dropdown_menu}>
                             {form.options.map((option) => (
                               <li
                                 key={option.id}
                                 className={styles.dropdown_option}
-                                onClick={() => {
-                                  handleOptionClick(option.text);
-                                  handleInputChange(form.id, option.text);
-                                }}
+                                onClick={() => handleOptionClick(form.id, option.text)}
                                 tabIndex={0}
                               >
                                 {option.text}
