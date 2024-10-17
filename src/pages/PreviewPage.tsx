@@ -17,6 +17,7 @@ export default function PreviewPage() {
   const [errorMessages, setErrorMessages] = useState<{ [key: number]: string }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   const handleOptionClick = (option: string) => {
     setSelectedOption(option);
@@ -103,6 +104,24 @@ export default function PreviewPage() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, formId: number) => {
+    if (event.key === "Enter") {
+      if (isOpen) {
+        const selectedElement = optionRefs.current[0];
+        if (selectedElement) {
+          const selectedText = selectedElement.textContent;
+          if (selectedText) {
+            handleOptionClick(selectedText);
+            handleInputChange(formId, selectedText);
+          }
+        }
+        setIsOpen(false);
+      } else {
+        setIsOpen(true);
+      }
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -198,7 +217,12 @@ export default function PreviewPage() {
                     ));
                   case "드롭다운":
                     return (
-                      <div className={styles.dropdown} ref={dropdownRef}>
+                      <div
+                        className={styles.dropdown}
+                        ref={dropdownRef}
+                        tabIndex={0}
+                        onKeyDown={(event) => handleKeyDown(event, form.id)}
+                      >
                         <div className={styles.dropdown_input} onClick={() => setIsOpen(!isOpen)}>
                           <span>{selectedOption || "선택"}</span>
                           <img
@@ -219,6 +243,7 @@ export default function PreviewPage() {
                                   handleOptionClick(option.text);
                                   handleInputChange(form.id, option.text);
                                 }}
+                                tabIndex={0}
                               >
                                 {option.text}
                               </li>

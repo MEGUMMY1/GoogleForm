@@ -2,11 +2,30 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import styles from "./Modal.module.scss";
 import close_icon from "../../assets/close.svg";
+import { useEffect } from "react";
 
 export default function Modal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { answers, questionForms, title, subtitle } = useSelector((state: RootState) => state.form);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLImageElement>) => {
+    if (event.key === "Enter" || "") {
+      onClose();
+    }
+  };
 
   return (
     <div className={styles.modal_overlay}>
@@ -40,6 +59,8 @@ export default function Modal({ isOpen, onClose }: { isOpen: boolean; onClose: (
           className={styles.close_button}
           alt="닫기"
           onClick={onClose}
+          tabIndex={0}
+          onKeyDown={(e) => handleKeyDown(e)}
           role="button"
         />
       </div>
