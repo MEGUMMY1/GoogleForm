@@ -92,6 +92,7 @@ export default function Dropdown({ options, id, isPreview = false }: DropdownPro
                           onKeyDown={(e) => handleDeleteKeyDown(e, option.id)}
                           alt="삭제"
                           tabIndex={0}
+                          role="button"
                         />
                       )}
                     </li>

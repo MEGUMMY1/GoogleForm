@@ -102,6 +102,7 @@ export default function MultipleChoice({ options, id, isPreview = false }: Multi
                           onKeyDown={(e) => handleDeleteKeyDown(e, option.id)}
                           alt="삭제"
                           tabIndex={0}
+                          role="button"
                         />
                       )}
                     </li>

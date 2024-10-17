@@ -72,11 +72,25 @@ export default function QuestionForm({
       <div className={styles.bar} />
       <div className={styles.option_container}>
         <div className={styles.icon_container} onClick={() => onCopy(id)}>
-          <img className={styles.icon} src={copy_icon} width={20} height={20} alt="복사하기" />
+          <img
+            className={styles.icon}
+            src={copy_icon}
+            width={20}
+            height={20}
+            alt="복사하기"
+            role="button"
+          />
           <span className={styles.tooltip}>복사</span>
         </div>
         <div className={styles.icon_container} onClick={() => onDelete(id)}>
-          <img className={styles.icon} src={delete_icon} width={20} height={20} alt="삭제하기" />
+          <img
+            className={styles.icon}
+            src={delete_icon}
+            width={20}
+            height={20}
+            alt="삭제하기"
+            role="button"
+          />
           <span className={styles.tooltip}>삭제</span>
         </div>
         <div className={styles.toggle_container}>
