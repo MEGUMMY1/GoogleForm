@@ -11,13 +11,11 @@ export default function PreviewPage() {
   const dispatch = useDispatch();
   const { title, subtitle, questionForms } = useSelector((state: RootState) => state.form);
   const [isOpen, setIsOpen] = useState<{ [key: number]: boolean }>({});
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: string | string[] }>({});
   const [formErrors, setFormErrors] = useState<{ [key: number]: boolean }>({});
   const [errorMessages, setErrorMessages] = useState<{ [key: number]: string }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-  const optionRefs = useRef<(HTMLLIElement | null)[]>([]);
 
   const handleOptionClick = (formId: number, option: string) => {
     setAnswers((prevAnswers) => ({
@@ -68,7 +66,6 @@ export default function PreviewPage() {
 
   const handleClear = () => {
     setAnswers({});
-    setSelectedOption(null);
     setFormErrors({});
     setErrorMessages({});
     setIsOpen({});

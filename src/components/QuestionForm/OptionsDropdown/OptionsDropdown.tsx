@@ -50,7 +50,13 @@ export default function OptionsDropdown({ questionType, setQuestionType }: Optio
       <div className={styles.dropdown} onClick={toggleDropdown}>
         <div className={styles.option_container}>
           {selectedOptionIcon && (
-            <img src={selectedOptionIcon} className={styles.option_icon} width={30} height={30} />
+            <img
+              src={selectedOptionIcon}
+              className={styles.option_icon}
+              width={30}
+              height={30}
+              alt="타입 아이콘"
+            />
           )}
           <span className={styles.selected}>{questionType}</span>
         </div>
