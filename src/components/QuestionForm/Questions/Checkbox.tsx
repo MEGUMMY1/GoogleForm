@@ -3,9 +3,17 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 import styles from "./Questions.module.scss";
 import close_icon from "../../../assets/close_small.png";
 import useEnterKey from "../../../hooks/handleKeyDown";
+import { QuestionOption, updateFormState } from "../../../redux/formSlice";
+import { useDispatch } from "react-redux";
 
-export default function CheckBox() {
-  const [options, setOptions] = useState([{ id: "1", text: "옵션 1", isChecked: false }]);
+interface CheckBoxProps {
+  options: QuestionOption[];
+  id: number;
+  isPreview?: boolean;
+}
+
+export default function CheckBox({ options, id, isPreview = false }: CheckBoxProps) {
+  const dispatch = useDispatch();
   const [newOptionText, setNewOptionText] = useState("");
 
   const handleDragEnd = (result: DropResult) => {
@@ -14,34 +22,37 @@ export default function CheckBox() {
     const items = Array.from(options);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    setOptions(items);
+    dispatch(updateFormState({ id, updatedState: { options: items } }));
   };
 
-  const handleOptionChange = (id: string, newText: string) => {
-    setOptions((prevOptions) =>
-      prevOptions.map((option) => (option.id === id ? { ...option, text: newText } : option))
+  const handleOptionChange = (optionId: number, newText: string) => {
+    const updatedOptions = options.map((option) =>
+      option.id === optionId ? { ...option, text: newText } : option
     );
+    dispatch(updateFormState({ id, updatedState: { options: updatedOptions } }));
   };
 
   const handleAddOption = () => {
     if (newOptionText.trim() === "") return;
 
-    const newOption = {
-      id: (options.length + 1).toString(),
+    const newOption: QuestionOption = {
+      id: options.length > 0 ? options[options.length - 1].id + 1 : 1,
       text: newOptionText,
       isChecked: false,
     };
-    setOptions([...options, newOption]);
+    const updatedOptions = [...options, newOption];
     setNewOptionText("");
+    dispatch(updateFormState({ id, updatedState: { options: updatedOptions } }));
   };
 
-  const handleDeleteOption = (id: string) => {
-    setOptions((prevOptions) => prevOptions.filter((option) => option.id !== id));
+  const handleDeleteOption = (optionId: number) => {
+    const updatedOptions = options.filter((option) => option.id !== optionId);
+    dispatch(updateFormState({ id, updatedState: { options: updatedOptions } }));
   };
 
   const handleKeyDown = useEnterKey(handleAddOption);
 
-  const handleDeleteKeyDown = (event: React.KeyboardEvent<HTMLImageElement>, id: string) => {
+  const handleDeleteKeyDown = (event: React.KeyboardEvent<HTMLImageElement>, id: number) => {
     if (event.key === "Enter" || "") {
       handleDeleteOption(id);
     }
@@ -54,7 +65,7 @@ export default function CheckBox() {
           {(provided) => (
             <ul {...provided.droppableProps} ref={provided.innerRef} className={styles.list}>
               {options.map((option, index) => (
-                <Draggable key={option.id} draggableId={option.id} index={index}>
+                <Draggable key={option.id} draggableId={option.id.toString()} index={index}>
                   {(provided) => (
                     <li
                       ref={provided.innerRef}
@@ -66,18 +77,21 @@ export default function CheckBox() {
                       <div className={styles.drag_handle}>::</div>
                       <input
                         type="checkbox"
+                        name={isPreview ? `option-${id}` : undefined}
                         checked={option.isChecked}
                         onChange={() => handleOptionChange(option.id, option.text)}
                         className={styles.checkbox}
                         tabIndex={-1}
+                        disabled={!isPreview}
                       />
                       <input
                         type="text"
                         value={option.text}
                         onChange={(e) => handleOptionChange(option.id, e.target.value)}
                         className={styles.option_input}
+                        disabled={isPreview}
                       />
-                      {index !== 0 && (
+                      {index !== 0 && !isPreview && (
                         <img
                           src={close_icon}
                           className={styles.delete_button}
@@ -98,16 +112,18 @@ export default function CheckBox() {
           )}
         </Droppable>
       </DragDropContext>
-      <div className={styles.add_option_wrapper}>
-        <input
-          type="text"
-          value={newOptionText}
-          onChange={(e) => setNewOptionText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="옵션 추가"
-          className={styles.new_option_input}
-        />
-      </div>
+      {!isPreview && (
+        <div className={styles.add_option_wrapper}>
+          <input
+            type="text"
+            value={newOptionText}
+            onChange={(e) => setNewOptionText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="옵션 추가"
+            className={styles.new_option_input}
+          />
+        </div>
+      )}
     </>
   );
 }

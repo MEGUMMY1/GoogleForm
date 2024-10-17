@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import Nav from "../components/Nav/Nav";
 import Title from "../components/Title/Title";
 import styles from "./Page.module.scss";
@@ -6,66 +6,44 @@ import QuestionForm from "../components/QuestionForm/QuestionForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-
-export interface QuestionFormState {
-  id: number;
-  questionType: string;
-  isRequired: boolean;
-}
+import { RootState } from "../redux/store";
+import {
+  addQuestion,
+  deleteQuestion,
+  copyQuestion,
+  updateFormState,
+  dragEnd,
+  setSelectedFormId,
+  QuestionFormState,
+} from "../redux/formSlice";
 
 export default function FormPage() {
-  const [questionForms, setQuestionForms] = useState<QuestionFormState[]>([
-    { id: 0, questionType: "객관식 질문", isRequired: false },
-  ]);
-
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
+  const dispatch = useDispatch();
+  const { questionForms, selectedFormId } = useSelector((state: RootState) => state.form);
 
   const handleAddQuestion = () => {
-    setQuestionForms((prevForms) => [
-      ...prevForms,
-      { id: prevForms.length, questionType: "객관식 질문", isRequired: false },
-    ]);
+    dispatch(addQuestion());
   };
 
   const handleDeleteQuestion = (id: number) => {
-    setQuestionForms((prevForms) => prevForms.filter((form) => form.id !== id));
+    dispatch(deleteQuestion(id));
     toast("항목이 삭제되었습니다.");
-    if (selectedFormId === id) {
-      setSelectedFormId(null);
-    }
   };
 
   const handleCopyQuestion = (id: number) => {
-    const formIndex = questionForms.findIndex((form) => form.id === id);
-    if (formIndex !== -1) {
-      const formToCopy = questionForms[formIndex];
-      const newForm = {
-        ...formToCopy,
-        id: questionForms.length,
-      };
-
-      setQuestionForms((prevForms) => [
-        ...prevForms.slice(0, formIndex + 1),
-        newForm,
-        ...prevForms.slice(formIndex + 1),
-      ]);
-    }
+    dispatch(copyQuestion(id));
   };
 
   const handleUpdateFormState = (id: number, updatedState: Partial<QuestionFormState>) => {
-    setQuestionForms((prevForms) =>
-      prevForms.map((form) => (form.id === id ? { ...form, ...updatedState } : form))
-    );
+    dispatch(updateFormState({ id, updatedState }));
   };
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const items = Array.from(questionForms);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setQuestionForms(items);
+    dispatch(
+      dragEnd({ sourceIndex: result.source.index, destinationIndex: result.destination.index })
+    );
   };
 
   return (
@@ -79,7 +57,7 @@ export default function FormPage() {
               ref={provided.innerRef}
             >
               <Title />
-              {questionForms.map((form, index) => (
+              {questionForms.map((form: QuestionFormState, index: number) => (
                 <Draggable key={form.id} draggableId={form.id.toString()} index={index}>
                   {(provided) => (
                     <div
@@ -87,7 +65,7 @@ export default function FormPage() {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       className={styles.form_container}
-                      onClick={() => setSelectedFormId(form.id)}
+                      onClick={() => dispatch(setSelectedFormId(form.id))}
                     >
                       {selectedFormId === form.id && (
                         <>
@@ -101,6 +79,8 @@ export default function FormPage() {
                         id={form.id}
                         questionType={form.questionType}
                         isRequired={form.isRequired}
+                        questionText={form.questionText}
+                        options={form.options}
                         onDelete={handleDeleteQuestion}
                         onCopy={handleCopyQuestion}
                         onUpdateFormState={handleUpdateFormState}

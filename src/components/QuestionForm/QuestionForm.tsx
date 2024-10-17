@@ -9,6 +9,8 @@ import copy_icon from "../../assets/copy.png";
 import delete_icon from "../../assets/delete.png";
 import styles from "./QuestionForm.module.scss";
 import { QuestionFormProps } from "./QuestionForm.types";
+import { useDispatch } from "react-redux";
+import { updateFormState } from "../../redux/formSlice";
 
 export default function QuestionForm({
   id,
@@ -16,14 +18,27 @@ export default function QuestionForm({
   isRequired,
   onDelete,
   onCopy,
-  onUpdateFormState,
+  questionText,
+  options,
 }: QuestionFormProps) {
+  const dispatch = useDispatch();
+  const [localQuestionText, setLocalQuestionText] = useState(questionText);
   const [localQuestionType, setLocalQuestionType] = useState(questionType);
   const [localIsRequired, setLocalIsRequired] = useState(isRequired);
 
   useEffect(() => {
-    onUpdateFormState(id, { questionType: localQuestionType, isRequired: localIsRequired });
-  }, [localQuestionType, localIsRequired]);
+    dispatch(
+      updateFormState({
+        id: id,
+        updatedState: {
+          questionType: localQuestionType,
+          isRequired: localIsRequired,
+          questionText: localQuestionText,
+          options: options,
+        },
+      })
+    );
+  }, [localQuestionText, localQuestionType, localIsRequired, options, dispatch, id]);
 
   const renderQuestionComponent = () => {
     switch (localQuestionType) {
@@ -32,11 +47,11 @@ export default function QuestionForm({
       case "장문형":
         return <LongAnswer />;
       case "객관식 질문":
-        return <MultipleChoice />;
+        return <MultipleChoice options={options} id={id} />;
       case "체크박스":
-        return <Checkbox />;
+        return <Checkbox options={options} id={id} />;
       case "드롭다운":
-        return <Dropdown />;
+        return <Dropdown options={options} id={id} />;
       default:
         return null;
     }
@@ -45,7 +60,12 @@ export default function QuestionForm({
   return (
     <div className={styles.container}>
       <div className={styles.input_dropdown_container}>
-        <input className={styles.input_box} placeholder="질문" />
+        <input
+          className={styles.input_box}
+          placeholder="질문"
+          value={localQuestionText}
+          onChange={(e) => setLocalQuestionText(e.target.value)}
+        />
         <OptionsDropdown questionType={localQuestionType} setQuestionType={setLocalQuestionType} />
       </div>
       {renderQuestionComponent()}
