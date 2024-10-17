@@ -4,14 +4,18 @@ import styles from "./Page.module.scss";
 import { useEffect, useRef, useState } from "react";
 import top_arrow from "../assets/dropdown_top.png";
 import down_arrow from "../assets/dropdown_down.png";
+import { submitAnswers } from "../redux/formSlice";
+import Modal from "../components/Modal/Modal";
 
 export default function PreviewPage() {
+  const dispatch = useDispatch();
   const { title, subtitle, questionForms } = useSelector((state: RootState) => state.form);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: string | string[] }>({});
   const [formErrors, setFormErrors] = useState<{ [key: number]: boolean }>({});
   const [errorMessages, setErrorMessages] = useState<{ [key: number]: string }>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleOptionClick = (option: string) => {
@@ -38,6 +42,26 @@ export default function PreviewPage() {
     }
   };
 
+  const handleSubmit = () => {
+    const newErrors: { [key: number]: boolean } = {};
+    const newMessages: { [key: number]: string } = {};
+    questionForms.forEach((form) => {
+      if (form.isRequired && !answers[form.id]) {
+        newErrors[form.id] = true;
+        newMessages[form.id] = "필수 질문입니다.";
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      setErrorMessages(newMessages);
+      return;
+    }
+
+    dispatch(submitAnswers(answers));
+    setIsModalOpen(true);
+  };
+
   const handleClear = () => {
     setAnswers({});
     setSelectedOption(null);
@@ -60,6 +84,10 @@ export default function PreviewPage() {
           break;
       }
     });
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -210,12 +238,15 @@ export default function PreviewPage() {
           </div>
         ))}
         <div className={styles.button_wrapper}>
-          <button className={styles.submit_button}>제출</button>
+          <button onClick={handleSubmit} className={styles.submit_button}>
+            제출
+          </button>
           <button onClick={handleClear} className={styles.clear_button}>
             양식 지우기
           </button>
         </div>
       </div>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 }

@@ -202,6 +202,10 @@
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
+
+    &:hover {
+      background-color: rgb(74, 30, 151);
+    }
   }
 
   .clear_button {
@@ -210,5 +214,9 @@
     border: none;
     font-weight: 600;
     cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }

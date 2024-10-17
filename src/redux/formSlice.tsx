@@ -19,6 +19,7 @@ interface FormState {
   selectedFormId: number | null;
   title: string;
   subtitle: string;
+  answers: { [key: number]: string | string[] }; // 답변을 저장할 필드 추가
 }
 
 const initialState: FormState = {
@@ -34,6 +35,7 @@ const initialState: FormState = {
   selectedFormId: null,
   title: "설문지 제목",
   subtitle: "설문지 설명",
+  answers: {}, // 초기값 설정
 };
 
 const formSlice = createSlice({
@@ -54,6 +56,8 @@ const formSlice = createSlice({
       if (state.selectedFormId === action.payload) {
         state.selectedFormId = null;
       }
+      // 삭제된 질문의 답변도 삭제
+      delete state.answers[action.payload];
     },
     copyQuestion(state, action: PayloadAction<number>) {
       const formIndex = state.questionForms.findIndex((form) => form.id === action.payload);
@@ -95,6 +99,9 @@ const formSlice = createSlice({
     setSubtitle(state, action: PayloadAction<string>) {
       state.subtitle = action.payload;
     },
+    submitAnswers(state, action: PayloadAction<{ [key: number]: string | string[] }>) {
+      state.answers = action.payload; // 제출된 답변을 answers에 저장
+    },
   },
 });
 
@@ -107,6 +114,7 @@ export const {
   setSelectedFormId,
   setTitle,
   setSubtitle,
+  submitAnswers, // 액션 이름 변경
 } = formSlice.actions;
 
 export default formSlice.reducer;
